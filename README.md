@@ -1,6 +1,9 @@
 # GiteaPanel  
 **A Gitea shortcut panel built based on UserScript; The configuration information of the panel is stored in the user-defined gitea repository in case of loss.**  
 
+## Install
+[https://openuserjs.org/install/kerwin612/GiteaPanel.min.user.js](https://openuserjs.org/install/kerwin612/GiteaPanel.min.user.js)
+
 ## Configuration  
 ```
 k_cs.repo = 'us-giteapanel';      		         //default
