@@ -7,17 +7,23 @@ function main(ctx) {
     $(`#${flagId}`).css({'zIndex': '1000'});
     $(`#${flagId} .settings`).css({'background-color': 'lightgray'});
 
+    let openLinkByATag = (link) => {
+        return (e) => {
+            ctx.openLinkByATag({
+                href: link,
+                target: e.which === 3 ? '_blank' : '_self'
+            });
+        };
+    };
+
     return {
         labels: [
             {
                 label: 'profile',
-                click: (e) => {
-                    ctx.openLinkByATag({
-                        href: `/${config.owner}`,
-                        target: e.which === 3 ? '_blank' : '_self'
-                    });
-                    //window.location.href = `/${config.owner}`;
-                }
+                click: openLinkByATag(`/${config.owner}`)
+                //click: () => {
+                //    window.location.href = `/${config.owner}`;
+                //}
             },
             {
                 label: 'open_link',
