@@ -47,7 +47,7 @@ function main(ctx) {
 // @name GiteaPanel
 // @namespace github.com/kerwin612
 // @description Gitea Quick Operation Panel
-// @version 1.2
+// @version 1.3
 // @author kerwin612
 // @license MIT
 // @include *
@@ -147,12 +147,9 @@ kStart(kFunc => {
 
                 #${flagId} .panel-div {
                     flex: 1;
-                    display: flex;
-                    flex-wrap: wrap;
                     max-height: 100%;
                     overflow-y: auto;
                     overflow-x: hidden;
-                    justify-content: space-around;
                 }
 
                 #${flagId} .panel-div span {
@@ -161,6 +158,13 @@ kStart(kFunc => {
                     padding: 5px 10px;
                     border-radius: 10px;
                     background-color: white;
+                }
+
+                #${flagId} .label-div {
+                    display: flex;
+                    flex-wrap: wrap;
+                    border-radius: 10px;
+                    justify-content: space-around;
                 }
             `);
         },
@@ -211,11 +215,34 @@ kStart(kFunc => {
                     window.location.reload();
                 });
             }
+          
+            function appendLabels(parent, labels) {
+                (labels||[]).forEach(e => {
+                    parent.append(() => {
+                        if (e.labels) {
+                            let grpEle = appendLabels($(`<div class="label-div"/>`), e.labels);
+                            (e.created || (()=>{}))(grpEle);
+                            return grpEle;
+                        } else {
+                            let lblEle = $(`<span>${e.label}</span>`);
+                            (e.created || (()=>{}))(lblEle);
+                            return lblEle.mousedown((_e) => {
+                                if (e.rightClick && _e.which === 3) {
+                                    (e.rightClick)(_e);
+                                } else {
+                                    (e.link ? (() => {ctx.openLinkByATag(e.link)}) : e.click)(_e);
+                                }
+                            });
+                        }
+                    });
+                });
+                return parent;
+            }
 
             if (!ctx.config.owner || !ctx.config.token || !ctx.config.gitea_host) {
                 showSettings();
             } else {
-                $(`#${flagId}`).append('<div class="panel-div"><span class="settings">settings</span></div>');
+                $(`#${flagId}`).append('<div class="panel-div label-div"><span class="settings">settings</span></div>');
                 $(`#${flagId} .panel-div .settings`).click(() => {
                     showSettings();
                 });
@@ -224,19 +251,7 @@ kStart(kFunc => {
                     headers: { 'accept': 'application/json', 'authorization': `token ${ctx.config.token}` },
                     success: function(data) {
                         let customization = Function(`return (${atob(data.content)})`)()(ctx);
-                        (customization.labels||[]).forEach(e => {
-                            $(`#${flagId} .panel-div`).append(() => {
-                                let lblEle = $(`<span>${e.label}</span>`);
-                                (e.created || (()=>{}))(lblEle);
-                                return lblEle.mousedown((_e) => {
-                                    if (e.rightClick && _e.which === 3) {
-                                        (e.rightClick)(_e);
-                                    } else {
-                                        (e.link ? (() => {ctx.openLinkByATag(e.link)}) : e.click)(_e);
-                                    }
-                                });
-                            });
-                        });
+                        appendLabels($(`#${flagId} .panel-div`), customization.labels);
                         $(`#${flagId}`).hover(
                             (e) => {
                                 (customization.onShow||(()=>{}))();
