@@ -11,12 +11,23 @@ function main(ctx) {
         labels: [
             {
                 label: 'profile',
-                click: () => {
-                    window.location.href = `/${config.owner}`;
+                click: (e) => {
+                    ctx.openLinkByATag({
+                        href: `/${config.owner}`,
+                        target: e.which === 3 ? '_blank' : '_self'
+                    });
+                    //window.location.href = `/${config.owner}`;
                 }
             },
             {
-                label: 'token',
+                label: 'open_link',
+                link: {
+                    href: 'link_demo',
+                    target: '_blank'
+                }
+            },
+            {
+                label: 'show_token',
                 click: () => {
                     alert(config.token);
                 },
