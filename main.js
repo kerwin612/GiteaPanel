@@ -16,6 +16,12 @@ function main(ctx) {
         };
     };
 
+    let orgs = $.ajax({
+        url: `/api/v1/orgs`,
+        headers: { 'accept': 'application/json', 'authorization': `token ${ctx.config.token}` },
+        async: false
+    });
+
     return {
         labels: [
             {
@@ -39,6 +45,13 @@ function main(ctx) {
                 },
                 created: (e) => {
                     e.css({'background-color': 'lightyellow'});
+                }
+            },
+            {
+                label: 'organizations',
+                labels: ((orgs.responseJSON||[]).map(i => ({label: i.name, click: openLinkByATag(`/${i.full_name}`)}))),
+                created: (e) => {
+                    e.children().css({'background-color': 'lightcyan'});
                 }
             }
         ],
