@@ -7,11 +7,11 @@ Gitea Quick Operation Panel
 
 ## Configuration
 ```
-k_cs.repo = 'us-giteapanel';  		     //default
-k_cs.ref = 'customization';  			 //default
-k_cs.owner = ''; 				  		 //required
-k_cs.token = ''; 				  		 //required
-k_cs.gitea_host = '' 				     //required
+k_cs.repo = 'us-giteapanel'; //default
+k_cs.ref = 'customization'; //default
+k_cs.owner = ''; //required
+k_cs.token = ''; //required
+k_cs.gitea_host = ''; //required
 ```
 
 ## /repos/${k_cs.owner}/${k_cs.repo}/contents/main.js?ref=${k_cs.ref}
@@ -47,7 +47,7 @@ function main(ctx) {
 // @name GiteaPanel
 // @namespace github.com/kerwin612
 // @description Gitea Quick Operation Panel
-// @version 1.1
+// @version 1.2
 // @author kerwin612
 // @license MIT
 // @include *
@@ -60,11 +60,11 @@ function main(ctx) {
 // @noframes
 // ==/UserScript==
 
-k_cs.repo = 'us-giteapanel';  		 //default
-k_cs.ref = 'customization';  			 //default
-k_cs.owner = ''; 				  		 //required
-k_cs.token = ''; 				  		 //required
-k_cs.gitea_host = '' 				     //required
+k_cs.repo = 'us-giteapanel'; //default
+k_cs.ref = 'customization'; //default
+k_cs.owner = ''; //required
+k_cs.token = ''; //required
+k_cs.gitea_host = ''; //required
 
 kStart(kFunc => {
     kFunc(
@@ -170,11 +170,20 @@ kStart(kFunc => {
         (ctx) => {
             let { $, flagId } = ctx;// 加载自定义jquery
             if ($(`#${flagId}`).length > 0) return;
+          
             ctx.config = k_cs;
+          
+            ctx.openLinkByATag = (a) => {
+                let e = $('<a style="display: none;"/>');
+                for(let k in a) {
+                    e.attr(k, a[k]);
+                }
+                e[0].click();
+                setTimeout(() => e.remove(), 500);   
+            };
+          
             //添加节点
-            $(document.body).append(`
-            <div id="${flagId}" class="hide"/>
-            `);
+            $(document.body).append(`<div id="${flagId}" class="hide"/>`);
 
             function showSettings() {
                 $(`#${flagId}`)
@@ -219,19 +228,25 @@ kStart(kFunc => {
                             $(`#${flagId} .panel-div`).append(() => {
                                 let lblEle = $(`<span>${e.label}</span>`);
                                 (e.created || (()=>{}))(lblEle);
-                                return lblEle.click(e.click);
+                                return lblEle.mousedown((_e) => {
+                                    if (e.rightClick && _e.which === 3) {
+                                        (e.rightClick)(_e);
+                                    } else {
+                                        (e.link ? (() => {ctx.openLinkByATag(e.link)}) : e.click)(_e);
+                                    }
+                                });
                             });
                         });
-	                $(`#${flagId}`).hover(
-	                    (e) => {
-				(customization.onShow||(()=>{}))();
-	                        $(`#${flagId}`).toggleClass('hide').toggleClass('show');
-	                    },
-	                    (e) => {
-				(customization.onHide||(()=>{}))();
-	                        $(`#${flagId}`).toggleClass('show').toggleClass('hide');
-	                    }
-	                );
+                        $(`#${flagId}`).hover(
+                            (e) => {
+                                (customization.onShow||(()=>{}))();
+                                $(`#${flagId}`).toggleClass('hide').toggleClass('show');
+                            },
+                            (e) => {
+                                (customization.onHide||(()=>{}))();
+                                $(`#${flagId}`).toggleClass('show').toggleClass('hide');
+                            }
+                        );
                     }
                 });
             }
@@ -249,10 +264,10 @@ function createElement(tagName) { return document.createElement(tagName); }
 function createStyle(css) {
     let head = document.head || document.getElementsByTagName('head')[0];
     if (head) {
-	let style = createElement("style");
-	style.type = "text/css";
-	style.appendChild(document.createTextNode(css));
-	head.appendChild(style);
+        let style = createElement("style");
+        style.type = "text/css";
+        style.appendChild(document.createTextNode(css));
+        head.appendChild(style);
     }
 }
 
