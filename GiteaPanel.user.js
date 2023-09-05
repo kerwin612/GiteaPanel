@@ -47,7 +47,7 @@ function main(ctx) {
 // @name GiteaPanel
 // @namespace github.com/kerwin612
 // @description Gitea Quick Operation Panel
-// @version 1.3
+// @version 1.4
 // @author kerwin612
 // @license MIT
 // @include *
@@ -147,6 +147,7 @@ kStart(kFunc => {
 
                 #${flagId} .panel-div {
                     flex: 1;
+										padding: 5px;
                     max-height: 100%;
                     overflow-y: auto;
                     overflow-x: hidden;
@@ -158,6 +159,13 @@ kStart(kFunc => {
                     padding: 5px 10px;
                     border-radius: 10px;
                     background-color: white;
+                }
+
+                #${flagId} .title-box {
+                    margin: 5px 0px;
+                    border-radius: 5px;
+                    border: 1px solid #0099dd;
+                    border-top: 15px solid #0099dd
                 }
 
                 #${flagId} .label-div {
@@ -220,7 +228,13 @@ kStart(kFunc => {
                 (labels||[]).forEach(e => {
                     parent.append(() => {
                         if (e.labels) {
-                            let grpEle = appendLabels($(`<div class="label-div"/>`), e.labels);
+                            let grpEle = $(`
+																<fieldset class="title-box" style="border: 1px black solid">
+                                  <legend class="title" style="border: 1px black solid;margin-left: 1em; padding: 0.2em 0.8em ">${e.label}</legend>
+                                  <div class="label-div"/>
+                                </fieldset>
+														`);
+                            appendLabels(grpEle.find('.label-div'), e.labels);
                             (e.created || (()=>{}))(grpEle);
                             return grpEle;
                         } else {
